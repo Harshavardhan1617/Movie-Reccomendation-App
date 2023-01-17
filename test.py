@@ -5,7 +5,7 @@ import pandas as pd
 ia = IMDb()
 
 # create a dataframe with a column 'title' containing movie titles
-df = pd.DataFrame({'title': ['The Shawshank Redemption', 'The Godfather', 'The Dark Knight','Argentina, 1985','2 or 3 Things I Know About Her','Нет','The Worst Person in the World']})
+df = pd.DataFrame({'title': ['The Shawshank Redemption', 'The Godfather', 'The Dark Knight','Argentina, 1985','2 or 3 Things I Know About Her','Нет','The Worst Person in the World','Пиноккио Гильермо дель Торо']})
 
 # create an empty column to store the movie ids
 df['movie_id'] = None
