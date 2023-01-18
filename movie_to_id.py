@@ -14,7 +14,7 @@ df['movie_id'] = None
 
 # loop through the titles and search for each movie on IMDb
 for i, title in df.iterrows():
-    movie = ia.search_movie(title['title'])[0]
+    movie = ia.search_movie(title['movie_title'])[0]
     movie_id = movie.movieID
     df.loc[i, 'movie_id'] = movie_id
 
@@ -23,14 +23,14 @@ logging.basicConfig(filename='id.log', level=logging.WARNING)
 # loop through the titles and search for each movie on IMDb
 for i, title in df.iterrows():
     try:
-        movie = ia.search_movie(title['title'])[0]
+        movie = ia.search_movie(title['movie_title'])[0]
         movie_id = movie.movieID
         df.loc[i, 'movie_id'] = movie_id
     except IndexError as e:
-        logging.warning(f'No results found for {title["title"]}')
+        logging.warning(f'No results found for {title["movie_title"]}')
         df.loc[i, 'movie_id'] = None
     except Exception as e:
         logging.warning(f'An error occurred: {e}')
         df.loc[i, 'movie_id'] = None
 
-df.to_csv('movie_id')        
+df.to_csv('movie_id.csv')
