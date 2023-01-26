@@ -55,6 +55,7 @@ if __name__ == "__main__":
         tweets_df.loc[:, 'tweet'] = tweets_df['tweet'].str.split("#IMDb", expand=True)[0][:-1]
         tweets_df['tweet'] = tweets_df['tweet'].str.replace('.*I rated', 'I rated')
         tweets_df["date"] = pd.to_datetime(tweets_df["date"])
+        tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
         # Validate
         if check_if_valid_data(tweets_df):
             print("Data valid, proceed to Load stage")
