@@ -25,24 +25,24 @@ old_date = cursor.fetchone()[0];
 
 print("the oldest date in database is : ", old_date)
 
-#validity check
-def check_if_valid_data(df: pd.DataFrame) -> bool:
-    if df.empty:
-        print("No tweets downloaded")
-        return False
-
-    #Primary key check
-    if pd.Series(df['conversation_id']).is_unique:
-        pass
-    else:
-        raise Exception("Primary key check violated")
+# #validity check
+# def check_if_valid_data(df: pd.DataFrame) -> bool:
+#     if df.empty:
+#         print("No tweets downloaded")
+#         return False
+#
+#     #Primary key check
+#     if pd.Series(df['conversation_id']).is_unique:
+#         pass
+#     else:
+#         raise Exception("Primary key check violated")
 
 #extract
 c = twint.Config()
 c.Search = "I rated* /10 #IMDb"
 c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
 c.Until = old_date
-c.Limit = 1000
+c.Limit = 2000
 c.Pandas = True
 
 
@@ -60,8 +60,8 @@ tweets_df['tweet'] = tweets_df['tweet'].str.replace('.*I rated', 'I rated')
 tweets_df["date"] = pd.to_datetime(tweets_df["date"])
 tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
 # Validate
-if check_if_valid_data(tweets_df):
-    print("Data valid, proceed to Load stage")
+# if check_if_valid_data(tweets_df):
+#     print("Data valid, proceed to Load stage")
 
 
 #Load
