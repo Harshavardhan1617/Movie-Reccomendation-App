@@ -8,6 +8,22 @@ import sqlite3
 import twint
 
 DATABASE_LOCATION = "sqlite:///new_data/movies.sqlite"
+#Connecting to sqlite
+engine = sqlalchemy.create_engine(DATABASE_LOCATION)
+conn = sqlite3.connect('new_data/movies.sqlite')
+
+#Creating a cursor object using the cursor() method
+cursor = conn.cursor()
+
+new_date = cursor.execute('''
+SELECT strftime('%Y-%m-%d %H:%M:%S', MAX(date)) as date
+FROM tweets
+
+''')
+new_date = cursor.fetchone()[0];
+
+
+print("the newest date in database is : ", new_date)
 
 
 def check_if_valid_data(df: pd.DataFrame) -> bool:
@@ -16,7 +32,7 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
         return False
 
     #Primary key check
-    if pd.Series(df['conversation_id']).is_unique:
+    if pd.Series(df['unix_time']).is_unique:
         pass
     else:
         raise Exception("Primary key check violated")
@@ -34,13 +50,15 @@ if __name__ == "__main__":
         c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
 
         # set the date range to be from yesterday morning to yesterday night
-        yesterday_morning = datetime.datetime.now() - datetime.timedelta(days=2)
-        yesterday_morning = yesterday_morning.strftime("%Y-%m-%d 00:00:00")
-        yesterday_night = datetime.datetime.now() - datetime.timedelta(days=2)
-        yesterday_night = yesterday_night.strftime("%Y-%m-%d 23:59:59")
+        # yesterday_morning = datetime.datetime.now() - datetime.timedelta(days=2)
+        # yesterday_morning = yesterday_morning.strftime("%Y-%m-%d 00:00:00")
+        # yesterday_night = datetime.datetime.now() - datetime.timedelta(days=2)
+        # yesterday_night = yesterday_night.strftime("%Y-%m-%d 23:59:59")
 
-        c.Since = yesterday_morning
-        c.Until = yesterday_night
+
+        # c.Since = yesterday_morning
+        # c.Until = yesterday_night
+        c.Since = new_date
         c.Pandas = True
 
         twint.run.Search(c)
@@ -63,10 +81,10 @@ if __name__ == "__main__":
             print("Data valid, proceed to Load stage")
 
         # Load
-
-        engine = sqlalchemy.create_engine(DATABASE_LOCATION)
-        conn = sqlite3.connect('movies.sqlite')
-        cursor = conn.cursor()
+        #
+        # engine = sqlalchemy.create_engine(DATABASE_LOCATION)
+        # conn = sqlite3.connect('movies.sqlite')
+        # cursor = conn.cursor()
 
         sql_query = """
         CREATE TABLE IF NOT EXISTS tweets(
