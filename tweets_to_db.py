@@ -59,6 +59,8 @@ tweets_df.loc[:, 'tweet'] = tweets_df['tweet'].str.split(" #IMDb", expand=True)[
 tweets_df['tweet'] = tweets_df['tweet'].str.replace('.*I rated', 'I rated')
 tweets_df["date"] = pd.to_datetime(tweets_df["date"])
 tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
+tweets_df["unix_time"] = pd.to_datetime(tweets_df["date"]).astype(int) / 10**9
+
 # Validate
 # if check_if_valid_data(tweets_df):
 #     print("Data valid, proceed to Load stage")
@@ -74,6 +76,7 @@ CREATE TABLE IF NOT EXISTS tweets(
     username VARCHAR(200),
     date VARCHAR(200),
     user_id VARCHAR(200),
+    unix_time VARCHAR(200),
     CONSTRAINT primary_key_constraint PRIMARY KEY (conversation_id)
 )
 """
