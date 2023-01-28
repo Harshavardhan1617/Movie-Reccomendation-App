@@ -7,11 +7,10 @@ import sqlite3
 #import requests
 import twint
 
-DATABASE_LOCATION = "sqlite:///new_data/movies.sqlite"
+DATABASE_LOCATION = "sqlite:////mnt/e/data/imdb/movies_data.sqlite"
 #Connecting to sqlite
 engine = sqlalchemy.create_engine(DATABASE_LOCATION)
-conn = sqlite3.connect('new_data/movies.sqlite')
-
+conn = sqlite3.connect('/mnt/e/data/imdb/movies_data.sqlite')
 #Creating a cursor object using the cursor() method
 cursor = conn.cursor()
 
