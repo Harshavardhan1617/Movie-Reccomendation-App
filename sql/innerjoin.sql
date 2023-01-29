@@ -9,4 +9,4 @@ SELECT repo.tconst as movie_id
 ,repo.startYear 
 from tweet_titles 
 INNER JOIN repo ON tweet_titles.title=repo.primaryTitle
-where tweet_titles."year"=repo.startYear 
+WHERE repo.titleType="movie" AND tweet_titles."year"=repo.startYear 
