@@ -6,7 +6,12 @@ from sqlalchemy.orm import sessionmaker
 import sqlite3
 #import requests
 import twint
-
+##
+from datetime import datetime
+now0 = datetime.now()
+# dd/mm/YY H:M:S
+dt_string0 = now0.strftime("%d/%m/%Y %H:%M:%S")
+##
 DATABASE_LOCATION = "sqlite:////mnt/e/data/imdb/movies_data.sqlite"
 #Connecting to sqlite
 engine = sqlalchemy.create_engine(DATABASE_LOCATION)
@@ -178,6 +183,7 @@ print("Close database successfully")
 
 from datetime import datetime
 
+print("start =", dt_string0)
 # datetime object containing current date and time
 now = datetime.now()
 
