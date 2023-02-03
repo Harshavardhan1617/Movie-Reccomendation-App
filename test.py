@@ -6,7 +6,12 @@ from sqlalchemy.orm import sessionmaker
 import sqlite3
 #import requests
 import twint
-
+##
+from datetime import datetime
+now0 = datetime.now()
+# dd/mm/YY H:M:S
+dt_string0 = now0.strftime("%d/%m/%Y %H:%M:%S")
+##
 DATABASE_LOCATION = "sqlite:////mnt/e/data/imdb/movies_data.sqlite"
 #Connecting to sqlite
 engine = sqlalchemy.create_engine(DATABASE_LOCATION)
@@ -41,8 +46,11 @@ try:
     c = twint.Config()
     c.Search = "I rated* /10 #IMDb"
     c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
-    c.Until = cfcgold_date
-    c.Limit = 20
+    c.Since = "2014-02-02 21:22:08"
+    c.Until = "2014-01-29 16:31:23"
+
+    #c.Until = old_date
+    c.Limit = 2000
     c.Pandas = True
 
 
@@ -60,7 +68,7 @@ except:
     c2.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
     c2.Until = u_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    c2.Limit = 20
+    c2.Limit = 2000
     c2.Pandas = True
     twint.run.Search(c2)
 
@@ -175,14 +183,15 @@ except:
 
 conn.close()
 print("Close database successfully")
-#
-#from datetime import datetime
 
+from datetime import datetime
+
+print("start =", dt_string0)
 # datetime object containing current date and time
 now = datetime.now()
 
-print("now =", now)
+#print("now =", now)
 
 # dd/mm/YY H:M:S
 dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-print("date and time =", dt_string)
+print("end =", dt_string)

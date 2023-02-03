@@ -47,7 +47,7 @@ try:
     c.Search = "I rated* /10 #IMDb"
     c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
     c.Until = old_date
-    c.Limit = 2000
+    c.Limit = 20
     c.Pandas = True
 
 
@@ -124,7 +124,6 @@ SELECT ROWID as S_No
 ,tweet
 ,unix_time
 from tweets
-WHERE unix_time<(SELECT MIN(unix_time) FROM tweet_titles)
 
 """
 
@@ -155,8 +154,8 @@ df = df.drop('S_No', axis=1)
 df.info()
 
 #load
-sql_query_2 = """
-CREATE TABLE IF NOT EXISTS tweet_titles(
+sql_query = """
+CREATE TABLE IF NOT EXISTS ttitles(
     user_id VARCHAR(200),
     username VARCHAR(200),
     tweet VARCHAR(200),
@@ -170,25 +169,13 @@ CREATE TABLE IF NOT EXISTS tweet_titles(
 """
 
 
-cursor.execute(sql_query_2)
-print("Opened tweet_titles table successfully")
+cursor.execute(sql_query)
+print("Opened database successfully")
 
 try:
-    df.to_sql("tweet_titles", engine, index=False, if_exists='append')
+    df.to_sql("ttitles", engine, index=False, if_exists='append')
 except:
     print("Data already exists in the database")
 
 conn.close()
-print("Close database successfully")
-
-from datetime import datetime
-
-print("start =", dt_string0)
-# datetime object containing current date and time
-now = datetime.now()
-
-#print("now =", now)
-
-# dd/mm/YY H:M:S
-dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-print("end =", dt_string)
+print("Close database successful")

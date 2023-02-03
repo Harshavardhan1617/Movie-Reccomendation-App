@@ -41,7 +41,7 @@ c = twint.Config()
 c.Search = "I rated* /10 #IMDb"
 c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
 c.Until = old_date
-c.Limit = 2000
+c.Limit = 200
 c.Pandas = True
 
 
@@ -102,7 +102,7 @@ SELECT ROWID as S_No
 ,tweet
 ,unix_time
 from tweets
-WHERE unix_time<(SELECT MIN(unix_time) FROM tweet_titles)
+WHERE unix_time<(SELECT MIN(unix_time) FROM ttitles)
 
 """
 
