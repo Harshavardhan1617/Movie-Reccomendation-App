@@ -54,8 +54,10 @@ tweets_df = twint_to_pd(["conversation_id","tweet", "username", "date", "user_id
 #tweets_df.to_csv('tweets.csv', index = False)
 
 #df = tweets_df
+#df = tweets_df
 tweets_df.loc[:, 'tweet'] = tweets_df['tweet'].str.split(" #IMDb", expand=True)[0]
 tweets_df['tweet'] = tweets_df['tweet'].str.replace('.*I rated', 'I rated')
+tweets_df['tweet'] = tweets_df['tweet'].str.replace('/10.*', '/10')
 tweets_df["date"] = pd.to_datetime(tweets_df["date"])
 tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
 tweets_df["unix_time"] = pd.to_datetime(tweets_df["date"]).astype(int) / 10**9
@@ -91,8 +93,8 @@ try:
 except:
     print("Data already exists in the database")
 
-#conn.close()
-#print("Close database successfully")
+conn.close()
+print("Close database successfully")
 
 cursor = conn.cursor()
 q_extract = """

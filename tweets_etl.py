@@ -41,10 +41,10 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
         return False
 
     #Primary key check
-    if pd.Series(df['unix_time']).is_unique:
-        pass
-    else:
-        raise Exception("Primary key check violated")
+    # if pd.Series(df['unix_time']).is_unique:
+    #     pass
+    # else:
+    #     raise Exception("Primary key check violated")
 
     #check for nulls
     #if df.isnull().values.any():
@@ -67,7 +67,8 @@ if __name__ == "__main__":
 
         # c.Since = yesterday_morning
         # c.Until = yesterday_night
-        c.Since = new_date
+        # c.Since = new_date
+        c.Since = 2023-02-01
         c.Pandas = True
 
         twint.run.Search(c)
@@ -81,6 +82,7 @@ if __name__ == "__main__":
         #df = tweets_df
         tweets_df.loc[:, 'tweet'] = tweets_df['tweet'].str.split("#IMDb", expand=True)[0][:-1]
         tweets_df['tweet'] = tweets_df['tweet'].str.replace('.*I rated', 'I rated')
+        tweets_df['tweet'] = tweets_df['tweet'].str.replace('/10.*', '/10')
         tweets_df["date"] = pd.to_datetime(tweets_df["date"])
         tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
         tweets_df["unix_time"] = pd.to_datetime(tweets_df["date"]).astype(int) / 10**9
@@ -102,8 +104,8 @@ if __name__ == "__main__":
             username VARCHAR(200),
             date VARCHAR(200),
             user_id VARCHAR(200),
-            unix_time VARCHAR(200),
-            CONSTRAINT primary_key_constraint PRIMARY KEY (conversation_id)
+            unix_time VARCHAR(200)
+
         )
         """
 

@@ -78,6 +78,7 @@ tweets_df = twint_to_pd(["conversation_id","tweet", "username", "date", "user_id
 #df = tweets_df
 tweets_df.loc[:, 'tweet'] = tweets_df['tweet'].str.split(" #IMDb", expand=True)[0]
 tweets_df['tweet'] = tweets_df['tweet'].str.replace('.*I rated', 'I rated')
+tweets_df['tweet'] = tweets_df['tweet'].str.replace('/10.*', '/10')
 tweets_df["date"] = pd.to_datetime(tweets_df["date"])
 tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
 tweets_df["unix_time"] = pd.to_datetime(tweets_df["date"]).astype(int) / 10**9
@@ -113,69 +114,69 @@ try:
 except:
     print("Data already exists in the database")
 
-#conn.close()
-#print("Close database successfully")
-
-cursor = conn.cursor()
-q_extract = """
-SELECT ROWID as S_No
-,user_id
-,username
-,tweet
-,unix_time
-from tweets
-
-"""
-
-try:
-    df = pd.read_sql_query(q_extract, engine)
-    print(df.info())
-except:
-    print("failed to load data")
-
-#dropping null values
-df = df.dropna()
-print("#after dropping null \n", df.info())
-
-#extracting titles,year and ratings from tweets
-df[['title','year','rating']] = df['tweet'].str.extract(r'rated (.*) \((.*)\) (.*)')
-print("#after extracting strings", df.info())
-
-#removing null titles
-df_2 = df[df['title'].isnull()]
-df = df[~df['S_No'].isin(df_2['S_No'])]
-
-#removing tv-shows from titles
-df_1 = df[df['year'].str.len()>4]
-df = df[~df['S_No'].isin(df_1['S_No'])]
-print("#after removing tv-shows", df.info())
-
-df = df.drop('S_No', axis=1)
-df.info()
-
-#load
-sql_query = """
-CREATE TABLE IF NOT EXISTS ttitles(
-    user_id VARCHAR(200),
-    username VARCHAR(200),
-    tweet VARCHAR(200),
-    unix_time VARCHAR(200),
-    title VARCHAR(200),
-    year VARCHAR(200),
-    rating VARCHAR(200)
-
-
-)
-"""
-
-
-cursor.execute(sql_query)
-print("Opened database successfully")
-
-try:
-    df.to_sql("ttitles", engine, index=False, if_exists='append')
-except:
-    print("Data already exists in the database")
-
 conn.close()
-print("Close database successful")
+print("Close database successfully")
+#
+# cursor = conn.cursor()
+# q_extract = """
+# SELECT ROWID as S_No
+# ,user_id
+# ,username
+# ,tweet
+# ,unix_time
+# from tweets
+#
+# """
+#
+# try:
+#     df = pd.read_sql_query(q_extract, engine)
+#     print(df.info())
+# except:
+#     print("failed to load data")
+#
+# #dropping null values
+# df = df.dropna()
+# print("#after dropping null \n", df.info())
+#
+# #extracting titles,year and ratings from tweets
+# df[['title','year','rating']] = df['tweet'].str.extract(r'rated (.*) \((.*)\) (.*)')
+# print("#after extracting strings", df.info())
+#
+# #removing null titles
+# df_2 = df[df['title'].isnull()]
+# df = df[~df['S_No'].isin(df_2['S_No'])]
+#
+# #removing tv-shows from titles
+# df_1 = df[df['year'].str.len()>4]
+# df = df[~df['S_No'].isin(df_1['S_No'])]
+# print("#after removing tv-shows", df.info())
+#
+# df = df.drop('S_No', axis=1)
+# df.info()
+#
+# #load
+# sql_query = """
+# CREATE TABLE IF NOT EXISTS ttitles(
+#     user_id VARCHAR(200),
+#     username VARCHAR(200),
+#     tweet VARCHAR(200),
+#     unix_time VARCHAR(200),
+#     title VARCHAR(200),
+#     year VARCHAR(200),
+#     rating VARCHAR(200)
+#
+#
+# )
+# """
+#
+#
+# cursor.execute(sql_query)
+# print("Opened database successfully")
+#
+# try:
+#     df.to_sql("ttitles", engine, index=False, if_exists='append')
+# except:
+#     print("Data already exists in the database")
+#
+# conn.close()
+# print("Close database successful")
