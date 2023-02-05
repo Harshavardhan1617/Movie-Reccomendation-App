@@ -6,6 +6,8 @@ import datetime
 from sqlalchemy.orm import sessionmaker
 import sqlite3
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import twint
 
 from datetime import datetime
@@ -31,13 +33,42 @@ old_date = cursor.fetchone()[0];
 
 print("the oldest date in database is : ", old_date)
 
+# #extract
+# c = twint.Config()
+# c.Search = "I rated* /10 #IMDb"
+# c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
+# c.Until = old_date
+# c.Limit = 225
+# c.Pandas = True
+
+try:
+
 #extract
-c = twint.Config()
-c.Search = "I rated* /10 #IMDb"
-c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
-c.Until = old_date
-c.Limit = 225
-c.Pandas = True
+    c = twint.Config()
+    c.Search = "I rated* /10 #IMDb"
+    c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
+    c.Until = old_date
+    c.Limit = 225
+    c.Pandas = True
+
+
+    twint.run.Search(c)
+except:
+    from datetime import datetime, timedelta
+    date_format = '%Y-%m-%d %H:%M:%S'
+    #old_date = '2022-12-15 00:00:00'
+    updated_date = datetime.strptime(old_date, date_format)
+    u_date = updated_date - timedelta(days=2)
+    print("updated date is :", u_date)
+
+    c2 = twint.Config()
+    c2.Search = "I rated* /10 #IMDb"
+    c2.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
+    c2.Until = u_date.strftime("%Y-%m-%d %H:%M:%S")
+
+    c2.Limit = 2000
+    c2.Pandas = True
+    twint.run.Search(c2)
 
 
 twint.run.Search(c)
@@ -61,9 +92,21 @@ def extract_url(text):
         return match.group()
     return None
 
+# def get_redirected_url(url):
+#     response = requests.head(url, allow_redirects=True)
+#     return response.url
+
+
 def get_redirected_url(url):
-    response = requests.head(url, allow_redirects=True)
+    session = requests.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
+    response = session.head(url, allow_redirects=True)
     return response.url
+
 
 tweets_df = twint_to_pd(["conversation_id","tweet", "username", "date", "user_id"])
 #tweets_df.to_csv('tweets.csv', index = False)
