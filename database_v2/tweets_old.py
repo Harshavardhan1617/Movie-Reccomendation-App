@@ -48,7 +48,7 @@ try:
     c.Search = "I rated* /10 #IMDb"
     c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
     c.Until = old_date
-    c.Limit = 225
+    c.Limit = 250
     c.Pandas = True
 
 
@@ -66,7 +66,7 @@ except:
     c2.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
     c2.Until = u_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    c2.Limit = 2000
+    c2.Limit = 250
     c2.Pandas = True
     twint.run.Search(c2)
 
@@ -120,8 +120,10 @@ tweets_df['tweet'] = tweets_df['tweet'].apply(lambda x: re.sub(" +", " ", x))
 tweets_df["date"] = pd.to_datetime(tweets_df["date"])
 tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
 tweets_df["unix_time"] = pd.to_datetime(tweets_df["date"]).astype(int) / 10**9
-#tweets_df['imdb_links'] = tweets_df['tweet'].apply(lambda x: extract_url(x))
-# tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_url(x) if x is not None else None)
+tweets_df['imdb_links'] = tweets_df['tweet'].apply(lambda x: extract_url(x))
+url_start = now0.strftime("%d/%m/%Y %H:%M:%S")
+print(url_start)
+tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_url(x) if x is not None else None)
 
 if check_if_valid_data(tweets_df):
     print("Data valid, proceed to Load stage")
