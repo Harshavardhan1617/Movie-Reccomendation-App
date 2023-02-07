@@ -120,8 +120,8 @@ tweets_df['tweet'] = tweets_df['tweet'].apply(lambda x: re.sub(" +", " ", x))
 tweets_df["date"] = pd.to_datetime(tweets_df["date"])
 tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
 tweets_df["unix_time"] = pd.to_datetime(tweets_df["date"]).astype(int) / 10**9
-tweets_df['imdb_links'] = tweets_df['tweet'].apply(lambda x: extract_url(x))
-tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_url(x) if x is not None else None)
+#tweets_df['imdb_links'] = tweets_df['tweet'].apply(lambda x: extract_url(x))
+# tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_url(x) if x is not None else None)
 
 if check_if_valid_data(tweets_df):
     print("Data valid, proceed to Load stage")
