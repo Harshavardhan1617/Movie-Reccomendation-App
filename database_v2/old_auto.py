@@ -12,7 +12,17 @@ import twint
 import time
 
 while True:
-
+    import sqlalchemy
+    import pandas as pd
+    import re
+    #import json
+    import datetime
+    from sqlalchemy.orm import sessionmaker
+    import sqlite3
+    import requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+    import twint
 
     from datetime import datetime
     now0 = datetime.now()
@@ -28,7 +38,7 @@ while True:
     cursor = conn.cursor()
 
     old_date = cursor.execute('''
-    SELECT strftime('%Y-%m-%d %H:%M:%S', MIN(date)) as date
+    SELECT strftime('%Y-%m-%d', MIN(date)) as date
     FROM tweets
 
     ''')
@@ -52,7 +62,7 @@ while True:
         c.Search = "I rated* /10 #IMDb"
         c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
         c.Until = old_date
-        c.Limit = 250
+        c.Limit = 2500
         c.Pandas = True
 
 
@@ -70,7 +80,7 @@ while True:
         c2.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
         c2.Until = u_date.strftime("%Y-%m-%d %H:%M:%S")
 
-        c2.Limit = 250
+        c2.Limit = 2500
         c2.Pandas = True
         twint.run.Search(c2)
 
@@ -101,7 +111,10 @@ while True:
     #     return response.url
 
 
-    def get_redirected_url(url):
+    import threading
+    from queue import Queue
+
+    def get_redirected_url(url, q):
         session = requests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)
         adapter = HTTPAdapter(max_retries=retry)
@@ -109,7 +122,22 @@ while True:
         session.mount('https://', adapter)
 
         response = session.head(url, allow_redirects=True)
-        return response.url
+        q.put(response.url)
+
+    def get_redirected_urls(urls):
+        q = Queue()
+        threads = []
+        for url in urls:
+            thread = threading.Thread(target=get_redirected_url, args=(url, q))
+            thread.start()
+            threads.append(thread)
+
+        for thread in threads:
+            thread.join()
+
+        return [q.get() for _ in range(q.qsize())]
+
+
 
 
     tweets_df = twint_to_pd(["conversation_id","tweet", "username", "date", "user_id"])
@@ -125,9 +153,15 @@ while True:
     tweets_df["date"] = tweets_df["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
     tweets_df["unix_time"] = pd.to_datetime(tweets_df["date"]).astype(int) / 10**9
     tweets_df['imdb_links'] = tweets_df['tweet'].apply(lambda x: extract_url(x))
-    url_start = now0.strftime("%d/%m/%Y %H:%M:%S")
+    url_start = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     print(url_start)
-    # tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_url(x) if x is not None else None)
+    # tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_urls(x) if x is not None else None)
+    imdb_links = tweets_df['imdb_links'].fillna('').tolist()
+    redirected_urls = get_redirected_urls(imdb_links)
+
+    for i, redirected_url in enumerate(redirected_urls):
+        tweets_df.loc[i, 'imdb_links'] = redirected_url
+
 
     if check_if_valid_data(tweets_df):
         print("Data valid, proceed to Load stage")
