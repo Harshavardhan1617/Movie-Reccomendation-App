@@ -65,7 +65,7 @@ if __name__ == "__main__":
         # c.Since = yesterday_morning
         # c.Until = yesterday_night
         c.Since = new_date
-        c.Limit = 50
+        # c.Limit = 500
         c.Pandas = True
 
         twint.run.Search(c)

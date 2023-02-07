@@ -12,17 +12,6 @@ import twint
 import time
 
 while True:
-    import sqlalchemy
-    import pandas as pd
-    import re
-    #import json
-    import datetime
-    from sqlalchemy.orm import sessionmaker
-    import sqlite3
-    import requests
-    from requests.adapters import HTTPAdapter
-    from urllib3.util.retry import Retry
-    import twint
 
     from datetime import datetime
     now0 = datetime.now()
@@ -38,7 +27,7 @@ while True:
     cursor = conn.cursor()
 
     old_date = cursor.execute('''
-    SELECT strftime('%Y-%m-%d', MIN(date)) as date
+    SELECT strftime('%Y-%m-%d %H:%M:%S', MIN(date)) as date
     FROM tweets
 
     ''')
@@ -69,11 +58,11 @@ while True:
         twint.run.Search(c)
     except:
         from datetime import datetime, timedelta
-        date_format = '%Y-%m-%d %H:%M:%S'
+        date_format = '%Y-%m-%d'
         #old_date = '2022-12-15 00:00:00'
         updated_date = datetime.strptime(old_date, date_format)
-        u_date = updated_date - timedelta(days=2)
-        print("updated date is :", u_date)
+        # u_date = updated_date - timedelta(days=2)
+        print("updated date is :", updated_date)
 
         c2 = twint.Config()
         c2.Search = "I rated* /10 #IMDb"
@@ -156,11 +145,11 @@ while True:
     url_start = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     print(url_start)
     # tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_urls(x) if x is not None else None)
-    imdb_links = tweets_df['imdb_links'].fillna('').tolist()
-    redirected_urls = get_redirected_urls(imdb_links)
-
-    for i, redirected_url in enumerate(redirected_urls):
-        tweets_df.loc[i, 'imdb_links'] = redirected_url
+    # imdb_links = tweets_df['imdb_links'].fillna('').tolist()
+    # redirected_urls = get_redirected_urls(imdb_links)
+    #
+    # for i, redirected_url in enumerate(redirected_urls):
+    #     tweets_df.loc[i, 'imdb_links'] = redirected_url
 
 
     if check_if_valid_data(tweets_df):

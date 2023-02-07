@@ -10,6 +10,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import twint
 
+
 from datetime import datetime
 now0 = datetime.now()
 # dd/mm/YY H:M:S
@@ -48,7 +49,7 @@ try:
     c.Search = "I rated* /10 #IMDb"
     c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
     c.Until = old_date
-    c.Limit = 2500
+    c.Limit = 1000
     c.Pandas = True
 
 
@@ -58,15 +59,15 @@ except:
     date_format = '%Y-%m-%d'
     #old_date = '2022-12-15 00:00:00'
     updated_date = datetime.strptime(old_date, date_format)
-    u_date = updated_date - timedelta(days=2)
-    print("updated date is :", u_date)
+    # u_date = updated_date - timedelta(days=2)
+    print("updated date is :", updated_date)
 
     c2 = twint.Config()
     c2.Search = "I rated* /10 #IMDb"
     c2.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
     c2.Until = u_date
 
-    c2.Limit = 2500
+    c2.Limit = 1000
     c2.Pandas = True
     twint.run.Search(c2)
 
@@ -93,23 +94,33 @@ def extract_url(text):
     return None
 
 # def get_redirected_url(url):
-#     response = requests.head(url, allow_redirects=True)
+#     response = requests.head(url, allow_redirects=True, verify=False)
 #     return response.url
+def get_redirected_url(url):
+    response = requests.head(url, allow_redirects=True, verify=False)
+    redirect_chain = response.history + [response]
+    for resp in redirect_chain:
+        if resp.is_redirect:
+            url = resp.next.url
+        else:
+            break
+    return url
+
 
 
 import threading
 from queue import Queue
 
-def get_redirected_url(url, q):
-    session = requests.Session()
-    retry = Retry(connect=3, backoff_factor=0.5)
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-
-    response = session.head(url, allow_redirects=True)
-    q.put(response.url)
-
+# def get_redirected_url(url, q):
+#     session = requests.Session()
+#     retry = Retry(connect=3, backoff_factor=0.5)
+#     adapter = HTTPAdapter(max_retries=retry)
+#     session.mount('http://', adapter)
+#     session.mount('https://', adapter)
+#
+#     response = session.head(url, allow_redirects=True)
+#     q.put(response.url)
+#
 def get_redirected_urls(urls):
     q = Queue()
     threads = []
@@ -122,8 +133,20 @@ def get_redirected_urls(urls):
         thread.join()
 
     return [q.get() for _ in range(q.qsize())]
-
-
+# import grequests
+# import concurrent.futures
+# def get_redirected_urls(urls):
+#     with concurrent.futures.ThreadPoolExecutor() as executor:
+#         future_to_url = {executor.submit(get_redirected_url, url): url for url in urls}
+#         redirected_urls = []
+#         for future in concurrent.futures.as_completed(future_to_url):
+#             url = future_to_url[future]
+#             try:
+#                 redirected_url = future.result()
+#                 redirected_urls.append(redirected_url)
+#             except Exception as e:
+#                 print(f"An error occurred for URL {url}: {e}")
+#         return redirected_urls
 
 
 tweets_df = twint_to_pd(["conversation_id","tweet", "username", "date", "user_id"])
@@ -141,12 +164,15 @@ tweets_df["unix_time"] = pd.to_datetime(tweets_df["date"]).astype(int) / 10**9
 tweets_df['imdb_links'] = tweets_df['tweet'].apply(lambda x: extract_url(x))
 url_start = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 print(url_start)
-# tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_urls(x) if x is not None else None)
-imdb_links = tweets_df['imdb_links'].fillna('').tolist()
-redirected_urls = get_redirected_urls(imdb_links)
 
-for i, redirected_url in enumerate(redirected_urls):
-    tweets_df.loc[i, 'imdb_links'] = redirected_url
+# tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_urls(x) if x is not None else None)
+
+# tweets_df['imdb_links'] = tweets_df['imdb_links'].apply(lambda x: get_redirected_urls(x) if x is not None else None)
+# imdb_links = tweets_df['imdb_links'].fillna('').tolist()
+# redirected_urls = get_redirected_urls(imdb_links)
+#
+# for i, redirected_url in enumerate(redirected_urls):
+#     tweets_df.loc[i, 'imdb_links'] = redirected_url
 
 
 if check_if_valid_data(tweets_df):
