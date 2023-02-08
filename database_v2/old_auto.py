@@ -26,22 +26,6 @@ while True:
     #Creating a cursor object using the cursor() method
     cursor = conn.cursor()
 
-    old_date = cursor.execute('''
-    SELECT strftime('%Y-%m-%d %H:%M:%S', MIN(date)) as date
-    FROM tweets
-
-    ''')
-
-    # old_date = cursor.execute('''
-    # SELECT strftime('%Y-%m-%d', MIN(date)) as date
-    # FROM tweets
-    #
-    # ''')
-
-    old_date = cursor.fetchone()[0];
-
-
-    print("the oldest date in database is : ", old_date)
 
     def twint_to_pd(columns):
         return twint.output.panda.Tweets_df[columns]
@@ -104,6 +88,13 @@ while True:
     # c.Pandas = True
 
     try:
+        old_date = cursor.execute('''
+        SELECT strftime('%Y-%m-%d %H:%M:%S', MIN(date)) as date
+        FROM tweets
+
+        ''')
+        old_date = cursor.fetchone()[0];
+        print("the oldest date in database is : ", old_date)
 
     #extract
         c = twint.Config()
@@ -117,11 +108,17 @@ while True:
         twint.run.Search(c)
         tweets_df = twint_to_pd(["conversation_id","tweet", "username", "date", "user_id"])
     except:
-        from datetime import datetime, timedelta
-        date_format = '%Y-%m-%d'
-        #old_date = '2022-12-15 00:00:00'
-        updated_date = datetime.strptime(old_date, date_format)
+
+        updated_date = cursor.execute('''
+        SELECT strftime('%Y-%m-%d', MIN(date)) as date
+        FROM tweets
+        ''')
+        # from datetime import datetime, timedelta
+        # date_format = '%Y-%m-%d'
+        # #old_date = '2022-12-15 00:00:00'
+        # updated_date = datetime.strptime(old_date, date_format)
         # u_date = updated_date - timedelta(days=2)
+        updated_date = cursor.fetchone()[0];
         print("updated date is :", updated_date)
 
         c2 = twint.Config()
