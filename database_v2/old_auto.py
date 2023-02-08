@@ -31,50 +31,18 @@ while True:
     FROM tweets
 
     ''')
+
+    # old_date = cursor.execute('''
+    # SELECT strftime('%Y-%m-%d', MIN(date)) as date
+    # FROM tweets
+    #
+    # ''')
+
     old_date = cursor.fetchone()[0];
 
 
     print("the oldest date in database is : ", old_date)
 
-    # #extract
-    # c = twint.Config()
-    # c.Search = "I rated* /10 #IMDb"
-    # c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
-    # c.Until = old_date
-    # c.Limit = 225
-    # c.Pandas = True
-
-    try:
-
-    #extract
-        c = twint.Config()
-        c.Search = "I rated* /10 #IMDb"
-        c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
-        c.Until = old_date
-        c.Limit = 2500
-        c.Pandas = True
-
-
-        twint.run.Search(c)
-    except:
-        from datetime import datetime, timedelta
-        date_format = '%Y-%m-%d'
-        #old_date = '2022-12-15 00:00:00'
-        updated_date = datetime.strptime(old_date, date_format)
-        # u_date = updated_date - timedelta(days=2)
-        print("updated date is :", updated_date)
-
-        c2 = twint.Config()
-        c2.Search = "I rated* /10 #IMDb"
-        c2.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
-        c2.Until = u_date.strftime("%Y-%m-%d %H:%M:%S")
-
-        c2.Limit = 2500
-        c2.Pandas = True
-        twint.run.Search(c2)
-
-
-    twint.run.Search(c)
     def twint_to_pd(columns):
         return twint.output.panda.Tweets_df[columns]
 
@@ -126,6 +94,45 @@ while True:
 
         return [q.get() for _ in range(q.qsize())]
 
+
+    # #extract
+    # c = twint.Config()
+    # c.Search = "I rated* /10 #IMDb"
+    # c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
+    # c.Until = old_date
+    # c.Limit = 225
+    # c.Pandas = True
+
+    try:
+
+    #extract
+        c = twint.Config()
+        c.Search = "I rated* /10 #IMDb"
+        c.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
+        c.Until = old_date
+        c.Limit = 2500
+        c.Pandas = True
+
+
+        twint.run.Search(c)
+        tweets_df = twint_to_pd(["conversation_id","tweet", "username", "date", "user_id"])
+    except:
+        from datetime import datetime, timedelta
+        date_format = '%Y-%m-%d'
+        #old_date = '2022-12-15 00:00:00'
+        updated_date = datetime.strptime(old_date, date_format)
+        # u_date = updated_date - timedelta(days=2)
+        print("updated date is :", updated_date)
+
+        c2 = twint.Config()
+        c2.Search = "I rated* /10 #IMDb"
+        c2.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
+        c2.Until = u_date.strftime("%Y-%m-%d %H:%M:%S")
+
+        c2.Limit = 2500
+        c2.Pandas = True
+        twint.run.Search(c2)
+        tweets_df = twint_to_pd(["conversation_id","tweet", "username", "date", "user_id"])
 
 
 
