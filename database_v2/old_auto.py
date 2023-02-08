@@ -19,10 +19,10 @@ while True:
     dt_string0 = now0.strftime("%d/%m/%Y %H:%M:%S")
 
 
-    DATABASE_LOCATION = "sqlite:////media/harsha/workspace/projects/Movie-Reccomendation-App/database_v2/movies.sqlite"
+    DATABASE_LOCATION = "sqlite:///movies.sqlite"
     #Connecting to sqlite
     engine = sqlalchemy.create_engine(DATABASE_LOCATION)
-    conn = sqlite3.connect('/media/harsha/workspace/projects/Movie-Reccomendation-App/database_v2/movies.sqlite')
+    conn = sqlite3.connect('movies.sqlite')
     #Creating a cursor object using the cursor() method
     cursor = conn.cursor()
 
@@ -124,7 +124,7 @@ while True:
         c2 = twint.Config()
         c2.Search = "I rated* /10 #IMDb"
         c2.Custom = ["conversation_id", "created_at","tweet", "username", "date", "user_id"]
-        c2.Until = u_date.strftime("%Y-%m-%d %H:%M:%S")
+        c2.Until = updated_date
 
         c2.Limit = 2500
         c2.Pandas = True
